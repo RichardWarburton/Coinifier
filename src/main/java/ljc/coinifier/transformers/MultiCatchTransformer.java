@@ -49,6 +49,7 @@ public class MultiCatchTransformer extends VisitorBasedTransformer {
 				if (outer.getBody().subtreeMatch(matcher, inner.getBody())) {
 					SingleVariableDeclaration exception = inner.getException();
 					// TODO: support merging multicatch
+					// TODO: ensure that the exception variable isn't assigned to
 					if (!exception.getType().isUnionType()) {
 						SimpleType type = (SimpleType) exception.getType();
 						toRemove.add(inner);
