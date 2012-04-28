@@ -17,4 +17,14 @@ public class MultiCatch {
 			e.printStackTrace();
 		}
 	}
+	
+	public void processTwo() {
+		try {
+			Class.forName("ljc.coinifier.MultiCatch").newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			System.err.println(e.getMessage());
+		}
+	}
 }

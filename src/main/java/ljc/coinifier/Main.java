@@ -42,7 +42,7 @@ public class Main {
 	@VisibleForTesting
 	String transformFile(String arg) throws IOException {
 		File file = new File(arg);
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
 		Document document = new Document(Files.toString(file, Charset.defaultCharset()));
 		parser.setSource(document.get().toCharArray());
 		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);

@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>core</artifactId>
-			<version>[3.5.0-v00000000,3.7.0-v00000000)</version>
+			<version>3.7.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -57,4 +57,13 @@
 		</repository>
 	</repositories>
   
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.eclipse.equinox</groupId>
+				<artifactId>app</artifactId>
+				<version>1.3.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
