@@ -1,1 +1,8 @@
 Coinifier - translates old Java to more modern idioms
+
+Installation
+------------
+
+1. Mavenise eclipse - mvn eclipse:to-maven -DstripQualifier=true -DeclipseDir=<location of eclipse installation>
+2. mvn install
+
