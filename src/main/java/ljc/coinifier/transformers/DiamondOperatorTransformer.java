@@ -6,7 +6,6 @@ import java.util.List;
 
 import ljc.coinifier.VisitorBasedTransformer;
 
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ParameterizedType;
@@ -24,54 +23,48 @@ import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 public class DiamondOperatorTransformer extends VisitorBasedTransformer {
 
 	@Override
-	protected ASTVisitor getVisitor() {
-		return new ASTVisitor() {
+	public boolean visit(VariableDeclarationStatement node) {
+		Type lType = node.getType();
+		if (areArgumentsInferrable(lType)) {
+			ParameterizedType lParamType = (ParameterizedType) lType;
+			List<Type> lTypearguments = lParamType.typeArguments();
 			
-			@Override
-			public boolean visit(VariableDeclarationStatement node) {
-				Type lType = node.getType();
-				if (areArgumentsInferrable(lType)) {
-					ParameterizedType lParamType = (ParameterizedType) lType;
-					List<Type> lTypearguments = lParamType.typeArguments();
-					
-					for (VariableDeclarationFragment fragment : (List<VariableDeclarationFragment>) node.fragments()) {
-						Expression init = fragment.getInitializer();
-						
-						if (init != null && init instanceof ClassInstanceCreation) {
-							ClassInstanceCreation constructor = (ClassInstanceCreation) init;
-							Type rType = constructor.getType();
-							
-							if(canDiamondise(rType)) {
-								diamondiseMethod(node, lTypearguments, rType);
-							}
-						}
-					}
-				}
+			for (VariableDeclarationFragment fragment : (List<VariableDeclarationFragment>) node.fragments()) {
+				Expression init = fragment.getInitializer();
 				
-				return super.visit(node);
-			}
-
-			private void diamondiseMethod(VariableDeclarationStatement node,
-					List<Type> lTypearguments, Type rType) {
-				ParameterizedType rParamType = (ParameterizedType) rType;
-				List<Type> rTypeArguments = rParamType.typeArguments();
-				// TODO: generalise this
-				if(rTypeArguments.size() == lTypearguments.size()) {
-					ListRewrite listRewriter = rewriter.getListRewrite(rParamType, TYPE_ARGUMENTS_PROPERTY);
-					for (Type argument : rTypeArguments) {										
-						listRewriter.remove(argument, null);
+				if (init != null && init instanceof ClassInstanceCreation) {
+					ClassInstanceCreation constructor = (ClassInstanceCreation) init;
+					Type rType = constructor.getType();
+					
+					if(canDiamondise(rType)) {
+						diamondiseMethod(node, lTypearguments, rType);
 					}
 				}
 			}
+		}
+		
+		return super.visit(node);
+	}
 
-			private boolean canDiamondise(Type rType) {
-				return rType.isParameterizedType() && !rType.isArrayType();
+	private void diamondiseMethod(VariableDeclarationStatement node,
+			List<Type> lTypearguments, Type rType) {
+		ParameterizedType rParamType = (ParameterizedType) rType;
+		List<Type> rTypeArguments = rParamType.typeArguments();
+		// TODO: generalise this
+		if(rTypeArguments.size() == lTypearguments.size()) {
+			ListRewrite listRewriter = rewriter.getListRewrite(rParamType, TYPE_ARGUMENTS_PROPERTY);
+			for (Type argument : rTypeArguments) {										
+				listRewriter.remove(argument, null);
 			}
+		}
+	}
 
-			private boolean areArgumentsInferrable(Type lType) {
-				return lType.isParameterizedType() && !lType.isArrayType() && !lType.isWildcardType();
-			}
-		};
+	private boolean canDiamondise(Type rType) {
+		return rType.isParameterizedType() && !rType.isArrayType();
+	}
+
+	private boolean areArgumentsInferrable(Type lType) {
+		return lType.isParameterizedType() && !lType.isArrayType() && !lType.isWildcardType();
 	}
 
 }
